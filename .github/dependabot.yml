@@ -1,0 +1,29 @@
+version: 2
+updates:
+  # npm
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Etc/UTC'
+    labels:
+      - 'Dependency'
+    commit-message:
+      prefix: 'deps'
+      include: 'scope'
+
+  # GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Etc/UTC'
+    labels:
+      - 'Dependency'
+    commit-message:
+      prefix: 'deps(actions)'
+      include: 'scope'

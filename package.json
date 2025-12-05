@@ -1,0 +1,53 @@
+{
+	"name": "npm-package-existence-checker",
+	"description": "GitHub Action to check package existence for npm Trusted Publishing",
+	"version": "0.0.0",
+	"license": "MIT",
+	"type": "module",
+	"private": true,
+	"homepage": "https://github.com/directus/npm-package-existence-checker",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/directus/npm-package-existence-checker.git"
+	},
+	"funding": "https://github.com/directus/directus?sponsor=1",
+	"keywords": [
+		"npm",
+		"trusted publishing",
+		"actions"
+	],
+	"exports": {
+		".": "./dist/index.js"
+	},
+	"scripts": {
+		"build": "rolldown --config rolldown.config.ts",
+		"format": "prettier --write .",
+		"lint": "eslint .",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@actions/core": "1.11.1",
+		"fast-glob": "3.3.3",
+		"js-yaml": "4.1.1"
+	},
+	"devDependencies": {
+		"@directus/tsconfig": "3.0.0",
+		"@eslint/js": "9.39.1",
+		"@github/local-action": "6.0.2",
+		"@types/js-yaml": "4.0.9",
+		"@types/node": "24.10.1",
+		"eslint": "9.39.1",
+		"eslint-config-prettier": "10.1.8",
+		"globals": "16.5.0",
+		"prettier": "3.7.4",
+		"rolldown": "1.0.0-beta.53",
+		"typescript": "5.9.3",
+		"typescript-eslint": "8.48.1",
+		"vitest": "4.0.15"
+	},
+	"packageManager": "pnpm@10.14.0",
+	"engines": {
+		"node": ">=24",
+		"pnpm": ">=10 <11"
+	}
+}
