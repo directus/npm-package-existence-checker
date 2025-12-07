@@ -174,12 +174,12 @@ export async function checkDirectory(directory: string, results: CheckResults): 
 	if (!result) return;
 
 	results.checkedPackages.push(result.name);
-	if (result.status === 'missing') {
-		results.missingPackages.push(result.name);
+	if (result.status === 'private') {
+		results.privatePackages.push(result.name);
 	} else if (result.status === 'existing') {
 		results.existingPackages.push(result.name);
-	} else if (result.status === 'private') {
-		results.privatePackages.push(result.name);
+	} else {
+		results.missingPackages.push(result.name);
 	}
 }
 

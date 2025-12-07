@@ -24655,9 +24655,9 @@ async function checkDirectory(directory, results) {
 	const result = await checkPackage(pkg, directory);
 	if (!result) return;
 	results.checkedPackages.push(result.name);
-	if (result.status === "missing") results.missingPackages.push(result.name);
+	if (result.status === "private") results.privatePackages.push(result.name);
 	else if (result.status === "existing") results.existingPackages.push(result.name);
-	else if (result.status === "private") results.privatePackages.push(result.name);
+	else results.missingPackages.push(result.name);
 }
 /**
 * Check all workspace packages and update results.
