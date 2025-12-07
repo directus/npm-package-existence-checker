@@ -24,6 +24,7 @@
 		"dev": "pnpx @github/local-action . src/main.ts",
 		"format": "prettier --write .",
 		"lint": "eslint .",
+		"prepare": "husky",
 		"test": "vitest run"
 	},
 	"dependencies": {
@@ -40,6 +41,7 @@
 		"eslint": "9.39.1",
 		"eslint-config-prettier": "10.1.8",
 		"globals": "16.5.0",
+		"husky": "9.1.7",
 		"prettier": "3.7.4",
 		"rolldown": "1.0.0-beta.53",
 		"typescript": "5.9.3",
