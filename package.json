@@ -21,7 +21,7 @@
 	},
 	"scripts": {
 		"build": "rolldown --config rolldown.config.ts",
-		"dev": "pnpx @github/local-action . src/main.ts",
+		"dev": "pnpx @github/local-action . src/main.ts .env",
 		"format": "prettier --write .",
 		"lint": "eslint .",
 		"prepare": "husky",
