@@ -25,6 +25,55 @@ export default typescriptEslint.config(
 	// Enable recommended rules for JS files
 	eslintJs.configs.recommended,
 
+	// Custom basic rules
+	{
+		rules: {
+			// No console & debugger statements in production
+			'no-console': process.env.NODE_ENV !== 'development' ? 'error' : 'off',
+			'no-debugger': process.env.NODE_ENV !== 'development' ? 'error' : 'off',
+			// Require empty line between certain statements
+			'padding-line-between-statements': [
+				'error',
+				{
+					blankLine: 'always',
+					prev: [
+						'block',
+						'block-like',
+						'cjs-export',
+						'class',
+						'export',
+						'import',
+						'multiline-block-like',
+						'multiline-const',
+						'multiline-expression',
+						'multiline-let',
+						'multiline-var',
+					],
+					next: '*',
+				},
+				{
+					blankLine: 'always',
+					prev: ['const', 'let'],
+					next: ['block', 'block-like', 'cjs-export', 'class', 'export', 'import'],
+				},
+				{
+					blankLine: 'always',
+					prev: '*',
+					next: ['multiline-block-like', 'multiline-const', 'multiline-expression', 'multiline-let', 'multiline-var'],
+				},
+				{ blankLine: 'any', prev: ['export', 'import'], next: ['export', 'import'] },
+			],
+			// Require empty line between class members
+			'lines-between-class-members': ['error', 'always', { exceptAfterSingleLine: true }],
+			// Disallow nested ternary expressions
+			'no-nested-ternary': 'error',
+			// Require brace style for multi-line control statements
+			curly: ['error', 'multi-line'],
+			// Disallow expressions where the operation doesn't affect the value
+			'no-constant-binary-expression': 'error',
+		},
+	},
+
 	// Enable TypeScript plugin and recommended rules for TypeScript files
 	...typescriptEslint.configs.recommended,
 

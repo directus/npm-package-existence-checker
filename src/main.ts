@@ -54,6 +54,7 @@ export async function run(): Promise<void> {
 			core.warning('No public packages found to check');
 		} else {
 			core.info(`All ${results.existingPackages.length} public package(s) exist on npm`);
+
 			if (results.privatePackages.length > 0) {
 				core.info(`${results.privatePackages.length} private package(s) skipped`);
 			}
@@ -91,6 +92,7 @@ export function expandGlobPattern(pattern: string, baseDir: string): string[] {
 		if (error instanceof Error) {
 			core.debug(`Glob error: ${error.message}`);
 		}
+
 		return [];
 	}
 }
@@ -103,11 +105,13 @@ export async function packageExistsOnNpm(packageName: string): Promise<boolean> 
 		const response = await fetch(`https://registry.npmjs.org/${packageName}`, {
 			method: 'HEAD',
 		});
+
 		return response.ok;
 	} catch (error) {
 		if (error instanceof Error) {
 			core.debug(`npm registry error for ${packageName}: ${error.message}`);
 		}
+
 		return false;
 	}
 }
@@ -117,6 +121,7 @@ export async function packageExistsOnNpm(packageName: string): Promise<boolean> 
  */
 export function readPackageJson(dir: string): PackageJson | null {
 	const packageJsonPath = join(dir, 'package.json');
+
 	if (!existsSync(packageJsonPath)) {
 		return null;
 	}
@@ -174,6 +179,7 @@ export async function checkDirectory(directory: string, results: CheckResults): 
 	if (!result) return;
 
 	results.checkedPackages.push(result.name);
+
 	if (result.status === 'private') {
 		results.privatePackages.push(result.name);
 	} else if (result.status === 'existing') {

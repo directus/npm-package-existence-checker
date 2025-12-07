@@ -54,10 +54,12 @@ describe('run', () => {
 			if (typeof path === 'string' && path.endsWith('package.json')) return true;
 			return false;
 		});
+
 		vi.mocked(fs.readFileSync).mockImplementation((path) => {
 			if (typeof path === 'string' && path.endsWith('package.json')) {
 				return '{"name": "root-pkg", "private": false}';
 			}
+
 			return '';
 		});
 
@@ -132,6 +134,7 @@ describe('run', () => {
 
 	it('handles errors gracefully', async () => {
 		const error = new Error('Unexpected error');
+
 		vi.mocked(core.getInput).mockImplementation(() => {
 			throw error;
 		});
@@ -175,6 +178,7 @@ describe('parseWorkspacePatterns', () => {
   - "packages/*"
   - "apps/*"
 `;
+
 		const patterns = parseWorkspacePatterns(content);
 		expect(patterns).toEqual(['packages/*', 'apps/*']);
 	});
@@ -184,6 +188,7 @@ describe('parseWorkspacePatterns', () => {
   - packages/*
   - apps/*
 `;
+
 		const patterns = parseWorkspacePatterns(content);
 		expect(patterns).toEqual(['packages/*', 'apps/*']);
 	});
@@ -195,6 +200,7 @@ describe('parseWorkspacePatterns', () => {
 catalog:
   lodash: ^4.17.0
 `;
+
 		const patterns = parseWorkspacePatterns(content);
 		expect(patterns).toEqual(['packages/*']);
 	});
@@ -203,6 +209,7 @@ catalog:
 		const content = `catalog:
   lodash: ^4.17.0
 `;
+
 		const patterns = parseWorkspacePatterns(content);
 		expect(patterns).toEqual([]);
 	});
@@ -228,6 +235,7 @@ catalog:
 describe('expandGlobPattern', () => {
 	it('handles glob errors gracefully', () => {
 		const mockGlobSync = glob.sync as unknown as ReturnType<typeof vi.fn>;
+
 		mockGlobSync.mockImplementation(() => {
 			throw new Error('Glob failed');
 		});
@@ -238,6 +246,7 @@ describe('expandGlobPattern', () => {
 
 	it('handles non-Error objects', () => {
 		const mockGlobSync = glob.sync as unknown as ReturnType<typeof vi.fn>;
+
 		mockGlobSync.mockImplementation(() => {
 			throw 'String error';
 		});
@@ -310,6 +319,7 @@ describe('checkPackage', () => {
 		fetchMock.mockResolvedValue({
 			ok: true,
 		});
+
 		const pkg: PackageJson = { name: '@actions/core', private: false };
 		const result = await checkPackage(pkg, 'test-dir');
 
@@ -320,6 +330,7 @@ describe('checkPackage', () => {
 		fetchMock.mockResolvedValue({
 			ok: false,
 		});
+
 		const pkg: PackageJson = { name: '@directus/this-package-should-not-exist', private: false };
 		const result = await checkPackage(pkg, 'test-dir');
 
@@ -457,12 +468,15 @@ describe('checkDirectory', () => {
 	it('checks package in a specific directory', async () => {
 		const targetDir = '/custom/dir';
 		vi.mocked(fs.existsSync).mockImplementation((path) => path === join(targetDir, 'package.json'));
+
 		vi.mocked(fs.readFileSync).mockImplementation((path) => {
 			if (path === join(targetDir, 'package.json')) {
 				return '{"name": "custom-pkg", "private": false}';
 			}
+
 			throw new Error('File not found');
 		});
+
 		fetchMock.mockResolvedValue({ ok: true });
 
 		const results: CheckResults = {
@@ -623,6 +637,7 @@ describe('checkWorkspacePackages', () => {
 		// Verify workspace file read from correct path
 		expect(fs.readFileSync).toHaveBeenCalledWith(join(targetDir, 'pnpm-workspace.yaml'), 'utf-8');
 	});
+
 	it('handles non-existent directory gracefully', async () => {
 		const targetDir = '/non-existent/dir';
 		vi.mocked(fs.existsSync).mockReturnValue(false);

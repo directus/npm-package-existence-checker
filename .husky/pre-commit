@@ -1,3 +1,4 @@
 pnpm format
+pnpm lint
 pnpm build
 git add dist/
