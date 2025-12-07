@@ -1,13 +1,16 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import * as core from '@actions/core';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-	parseWorkspacePatterns,
-	checkPackage,
-	expandGlobPattern,
-	readPackageJson,
 	checkDirectory,
+	checkPackage,
 	checkWorkspacePackages,
-	type PackageJson,
+	expandGlobPattern,
+	packageExistsOnNpm,
+	parseWorkspacePatterns,
+	readPackageJson,
+	run,
 	type CheckResults,
+	type PackageJson,
 } from './main.js';
 
 vi.mock('@actions/core', () => ({
@@ -37,6 +40,134 @@ import { join } from 'node:path';
 
 const fetchMock = vi.fn();
 global.fetch = fetchMock;
+
+describe('run', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		fetchMock.mockReset();
+	});
+
+	it('completes successfully when all packages exist', async () => {
+		vi.mocked(core.getInput).mockReturnValue('.');
+
+		vi.mocked(fs.existsSync).mockImplementation((path) => {
+			if (typeof path === 'string' && path.endsWith('package.json')) return true;
+			return false;
+		});
+		vi.mocked(fs.readFileSync).mockImplementation((path) => {
+			if (typeof path === 'string' && path.endsWith('package.json')) {
+				return '{"name": "root-pkg", "private": false}';
+			}
+			return '';
+		});
+
+		fetchMock.mockResolvedValue({ ok: true });
+
+		await run();
+
+		expect(core.setFailed).not.toHaveBeenCalled();
+		expect(core.setOutput).toHaveBeenCalledWith('existing-packages', 'root-pkg');
+		expect(core.setOutput).toHaveBeenCalledWith('missing-packages', '');
+		expect(core.setOutput).toHaveBeenCalledWith('private-packages', '');
+	});
+
+	it('fails when a package is missing', async () => {
+		vi.mocked(core.getInput).mockReturnValue('.');
+		vi.mocked(fs.existsSync).mockReturnValue(true);
+		vi.mocked(fs.readFileSync).mockReturnValue('{"name": "missing-pkg", "private": false}');
+
+		fetchMock.mockResolvedValue({ ok: false });
+
+		await run();
+
+		expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('The following packages do not exist on npm'));
+		expect(core.setOutput).toHaveBeenCalledWith('missing-packages', 'missing-pkg');
+	});
+
+	it('warns when no public packages are found', async () => {
+		vi.mocked(core.getInput).mockReturnValue('.');
+
+		vi.mocked(fs.existsSync).mockImplementation((path) => {
+			if (typeof path === 'string' && path.endsWith('package.json')) return true;
+			return false;
+		});
+
+		vi.mocked(fs.readFileSync).mockReturnValue('{"name": "private-pkg", "private": true}');
+
+		await run();
+
+		expect(core.warning).toHaveBeenCalledWith('No public packages found to check');
+		expect(core.setOutput).toHaveBeenCalledWith('private-packages', 'private-pkg');
+	});
+
+	it('handles mixed public and private packages', async () => {
+		vi.mocked(core.getInput).mockReturnValue('.');
+		const mockGlobSync = glob.sync as unknown as ReturnType<typeof vi.fn>;
+
+		vi.mocked(fs.existsSync).mockImplementation((path) => {
+			if (typeof path !== 'string') return false;
+			if (path.endsWith('pnpm-workspace.yaml')) return true;
+			if (path.includes('public-pkg/package.json')) return true;
+			if (path.includes('private-pkg/package.json')) return true;
+			return false;
+		});
+
+		vi.mocked(fs.readFileSync).mockImplementation((path) => {
+			if (typeof path !== 'string') return '';
+			if (path.endsWith('pnpm-workspace.yaml')) return 'packages:\n  - "packages/*"';
+			if (path.includes('public-pkg/package.json')) return '{"name": "public-pkg", "private": false}';
+			if (path.includes('private-pkg/package.json')) return '{"name": "private-pkg", "private": true}';
+			return '';
+		});
+
+		mockGlobSync.mockReturnValue(['/root/packages/public-pkg', '/root/packages/private-pkg']);
+		fetchMock.mockResolvedValue({ ok: true });
+
+		await run();
+
+		expect(core.setOutput).toHaveBeenCalledWith('existing-packages', 'public-pkg');
+		expect(core.setOutput).toHaveBeenCalledWith('private-packages', 'private-pkg');
+		expect(core.setFailed).not.toHaveBeenCalled();
+	});
+
+	it('handles errors gracefully', async () => {
+		const error = new Error('Unexpected error');
+		vi.mocked(core.getInput).mockImplementation(() => {
+			throw error;
+		});
+
+		await run();
+
+		expect(core.setFailed).toHaveBeenCalledWith('Unexpected error');
+	});
+
+	it('ignores non-Error exceptions', async () => {
+		vi.mocked(core.getInput).mockImplementation(() => {
+			throw 'String error';
+		});
+
+		await run();
+
+		expect(core.setFailed).not.toHaveBeenCalled();
+	});
+
+	it('uses current directory when input is empty', async () => {
+		vi.mocked(core.getInput).mockReturnValue('');
+
+		vi.mocked(fs.existsSync).mockImplementation((path) => {
+			if (typeof path === 'string' && path.endsWith('package.json')) return true;
+			return false;
+		});
+
+		vi.mocked(fs.readFileSync).mockReturnValue('{"name": "root-pkg", "private": false}');
+		fetchMock.mockResolvedValue({ ok: true });
+
+		await run();
+
+		expect(core.setOutput).toHaveBeenCalledWith('existing-packages', 'root-pkg');
+		expect(core.setFailed).not.toHaveBeenCalled();
+	});
+});
 
 describe('parseWorkspacePatterns', () => {
 	it('parses simple workspace patterns', () => {
@@ -103,6 +234,29 @@ describe('expandGlobPattern', () => {
 
 		const result = expandGlobPattern('packages/*', '/root');
 		expect(result).toEqual([]);
+	});
+
+	it('handles non-Error objects', () => {
+		const mockGlobSync = glob.sync as unknown as ReturnType<typeof vi.fn>;
+		mockGlobSync.mockImplementation(() => {
+			throw 'String error';
+		});
+
+		const result = expandGlobPattern('pattern', '.');
+		expect(result).toEqual([]);
+	});
+});
+
+describe('packageExistsOnNpm', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it('handles non-Error objects', async () => {
+		fetchMock.mockRejectedValue('String error');
+
+		const exists = await packageExistsOnNpm('some-pkg');
+		expect(exists).toBe(false);
 	});
 });
 
@@ -242,6 +396,25 @@ describe('checkDirectory', () => {
 
 		expect(results.privatePackages).toEqual(['private-pkg']);
 		expect(results.checkedPackages).toEqual(['private-pkg']);
+		expect(results.existingPackages).toEqual([]);
+		expect(results.missingPackages).toEqual([]);
+	});
+
+	it('handles package without name', async () => {
+		vi.mocked(fs.existsSync).mockReturnValue(true);
+		vi.mocked(fs.readFileSync).mockReturnValue('{"private": false}');
+
+		const results: CheckResults = {
+			existingPackages: [],
+			missingPackages: [],
+			privatePackages: [],
+			checkedPackages: [],
+		};
+
+		await checkDirectory('.', results);
+
+		expect(results.privatePackages).toEqual([]);
+		expect(results.checkedPackages).toEqual([]);
 		expect(results.existingPackages).toEqual([]);
 		expect(results.missingPackages).toEqual([]);
 	});
