@@ -1,0 +1,25 @@
+name: npm Package Existence Checker
+description: Check package existence for npm Trusted Publishing
+author: Directus
+
+branding:
+  icon: package
+  color: purple
+
+inputs:
+  directory:
+    description: 'Root directory to check'
+    required: false
+    default: '.'
+
+outputs:
+  existing-packages:
+    description: Comma-separated list of packages that exist on npm
+  missing-packages:
+    description: Comma-separated list of packages that don't exist on npm
+  private-packages:
+    description: Comma-separated list of private packages skipped
+
+runs:
+  using: node24
+  main: dist/index.js
