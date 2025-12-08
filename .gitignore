@@ -1,0 +1,30 @@
+# User preferences
+.DS_Store
+
+# Dependencies
+node_modules/
+
+# Caches
+coverage/
+*.tsbuildinfo
+.eslintcache
+
+# Env
+.env
+
+# Logs
+npm-debug.log
+debug
+.clinic
+
+# IDEs / Editors
+.devcontainer/
+.vscode/*
+.idea/
+*.code-workspace
+.history/
+*.sublime-settings
+.*.swp
+
+# Temporary files
+TODO

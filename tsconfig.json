@@ -1,0 +1,8 @@
+{
+	"extends": "@directus/tsconfig/node22",
+	"compilerOptions": {
+		"declaration": false,
+		"noEmit": true
+	},
+	"include": ["src"]
+}
