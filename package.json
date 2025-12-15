@@ -36,7 +36,7 @@
 	},
 	"devDependencies": {
 		"@directus/tsconfig": "3.0.0",
-		"@eslint/js": "9.39.1",
+		"@eslint/js": "9.39.2",
 		"@types/js-yaml": "4.0.9",
 		"@types/node": "24.10.1",
 		"@vitest/coverage-v8": "4.0.15",
