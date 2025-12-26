@@ -36,19 +36,19 @@
 	},
 	"devDependencies": {
 		"@directus/tsconfig": "3.0.0",
-		"@eslint/js": "9.39.1",
+		"@eslint/js": "9.39.2",
 		"@types/js-yaml": "4.0.9",
-		"@types/node": "24.10.1",
-		"@vitest/coverage-v8": "4.0.15",
-		"eslint": "9.39.1",
+		"@types/node": "25.0.3",
+		"@vitest/coverage-v8": "4.0.16",
+		"eslint": "9.39.2",
 		"eslint-config-prettier": "10.1.8",
 		"globals": "16.5.0",
 		"husky": "9.1.7",
 		"prettier": "3.7.4",
-		"rolldown": "1.0.0-beta.53",
+		"rolldown": "1.0.0-beta.57",
 		"typescript": "5.9.3",
-		"typescript-eslint": "8.48.1",
-		"vitest": "4.0.15"
+		"typescript-eslint": "8.50.1",
+		"vitest": "4.0.16"
 	},
 	"packageManager": "pnpm@10.14.0",
 	"engines": {
