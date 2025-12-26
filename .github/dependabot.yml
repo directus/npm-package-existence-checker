@@ -10,6 +10,15 @@ updates:
       timezone: 'Etc/UTC'
     labels:
       - 'Dependency'
+    groups:
+      production-dependencies:
+        dependency-type: 'production'
+        patterns:
+          - '*'
+      dev-dependencies:
+        dependency-type: 'development'
+        patterns:
+          - '*'
     commit-message:
       prefix: 'deps'
       include: 'scope'
@@ -24,6 +33,10 @@ updates:
       timezone: 'Etc/UTC'
     labels:
       - 'Dependency'
+    groups:
+      actions:
+        patterns:
+          - '*'
     commit-message:
       prefix: 'deps(actions)'
       include: 'scope'
