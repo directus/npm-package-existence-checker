@@ -30,7 +30,7 @@
 		"test:coverage": "vitest run --coverage"
 	},
 	"dependencies": {
-		"@actions/core": "1.11.1",
+		"@actions/core": "2.0.2",
 		"fast-glob": "3.3.3",
 		"js-yaml": "4.1.1"
 	},
